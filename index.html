@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NANA KHAOYAI | Asset Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@200;300;400;500;600;700&family=Cinzel:wght@400;500;600&display=swap');
+        
+        :root {
+            --luxury-cream: #fdfbf7;
+            --luxury-gold: #c5a059;
+            --luxury-navy: #0f172a;
+            --border-subtle: #e2e8f0;
+            --gemini-1: #4285f4;
+            --gemini-2: #9b72cb;
+            --gemini-3: #d96570;
+            --gemini-4: #34a853;
+        }
+
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: var(--luxury-cream); 
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .luxury-text { font-family: 'Cinzel', serif; letter-spacing: 0.2em; }
+
+        #google-map { width: 100%; height: 100%; position: absolute; inset: 0; }
+
+        .form-input {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background-color: #fff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus { border-color: var(--luxury-gold); outline: none; }
+
+        .btn-luxury {
+            background-color: var(--luxury-navy);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            transition: all 0.3s;
+        }
+
+        .btn-outline {
+            border: 1px solid #d1d5db;
+            color: #64748b;
+            padding: 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        /* GEMINI AI ASSISTANT STYLING */
+        .ai-search-wrapper {
+            position: relative;
+            padding: 3px;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .ai-search-wrapper.active {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(66, 133, 244, 0.15);
+        }
+
+        .ai-gradient-border {
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            padding: 2px;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .ai-search-wrapper.active .ai-gradient-border {
+            background: linear-gradient(
+                270deg, 
+                var(--gemini-1), 
+                var(--gemini-2), 
+                var(--gemini-3), 
+                var(--gemini-4)
+            );
+            background-size: 400% 400%;
+            animation: gemini-gradient 4s ease infinite;
+        }
+
+        @keyframes gemini-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .ai-search-inner {
+            background: #fff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .listening-glow {
+            position: absolute;
+            inset: 0;
+            border-radius: 10px;
+            background: linear-gradient(90deg, rgba(66, 133, 244, 0.1), rgba(155, 114, 203, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .active.listening .listening-glow {
+            opacity: 1;
+            animation: pulse-gemini 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-gemini {
+            0% { transform: scale(0.98); opacity: 0.3; }
+            50% { transform: scale(1.02); opacity: 0.6; }
+            100% { transform: scale(0.98); opacity: 0.3; }
+        }
+
+        .map-action-btn {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: white;
+            position: relative;
+        }
+        .map-action-btn:hover { transform: scale(1.1); }
+
+        #toast-alert {
+            position: absolute;
+            right: 60px;
+            background: white;
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 240px;
+            border-left: 4px solid var(--gemini-1);
+            transform-origin: right center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform: scale(0.5) translateX(20px);
+        }
+
+        #toast-alert.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1) translateX(0);
+        }
+
+        .formal-card {
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .formal-card:hover { border-color: var(--luxury-gold); transform: translateY(-1px); }
+
+        @media (max-width: 1024px) {
+            .sidebar-collapsed { transform: translateX(-100%); }
+            .map-container { height: calc(100vh - 60px); }
+            #toast-alert { right: 20px; bottom: 80px; top: auto; }
+        }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- Mobile Header -->
+    <div class="lg:hidden bg-white border-b border-slate-100 px-4 py-3 flex justify-between items-center z-50 shrink-0">
+        <h1 class="luxury-text font-bold text-xs tracking-widest text-slate-900">NANA KHAOYAI</h1>
+        <div class="flex items-center gap-2">
+            <button onclick="toggleVoice()" class="p-2 text-slate-400">
+                <i class="fa-solid fa-microphone text-lg"></i>
+            </button>
+            <button onclick="toggleSidebar()" class="p-2 text-slate-600">
+                <i class="fa-solid fa-bars-staggered text-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden relative">
+        
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 w-[85%] sm:w-[400px] lg:relative lg:w-[420px] h-full flex flex-col bg-white border-r border-slate-100 z-[60] transition-transform duration-300 sidebar-collapsed lg:translate-x-0">
+            
+            <div class="px-8 py-8 border-b border-slate-50 text-center flex flex-col items-center shrink-0">
+                <h1 class="luxury-text font-medium text-lg text-slate-900 leading-none">NANA KHAOYAI</h1>
+                <p class="text-[10px] text-slate-400 mt-2 uppercase font-medium tracking-[0.3em]">Asset Intelligence System</p>
+            </div>
+
+            <!-- GEMINI AI Search Assistant -->
+            <div class="p-5 border-b border-slate-50 shrink-0 bg-[#fafafa]/50">
+                <div id="aiSearchWrapper" class="ai-search-wrapper">
+                    <div class="ai-gradient-border"></div>
+                    <div class="ai-search-inner">
+                        <div class="listening-glow"></div>
+                        <div class="pl-2 pr-3 text-slate-400 transition-colors duration-300" id="aiIcon">
+                            <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+                        </div>
+                        <input id="aiSearchInput" type="text" placeholder="ค้นหาด้วย AI เช่น 'ที่ดินหมูสี งบ 10 ล้าน'..." class="flex-1 bg-transparent border-none outline-none text-sm py-1 font-light" onfocus="activateAI(true)" onblur="activateAI(false)">
+                        <button id="voiceBtnSidebar" onclick="toggleVoice()" class="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all">
+                            <i class="fa-solid fa-microphone text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filters Area -->
+            <div class="overflow-y-auto flex-1 scrollbar-hide">
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider">รหัสทรัพย์</label>
+                            <input id="searchPropId" type="text" placeholder="NK-XXXX" class="form-input">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 tracking-wider">ตำบล</label>
+                            <select id="searchSubdistrict" class="form-input">
+                                <option value="">ทุกตำบล</option>
+                                <option value="หนองสาหร่าย">หนองสาหร่าย</option>
+                                <option value="หมูสี">หมูสี</option>
+                                <option value="ปากช่อง">ปากช่อง</option>
+                                <option value="หนองน้ำแดง">หนองน้ำแดง</option>
+                                <option value="กลางดง">กลางดง</option>
+                                <option value="ขนงพระ">ขนงพระ</option>
+                                <option value="พญาเย็น">พญาเย็น</option>
+                                <option value="วังไทร">วังไทร</option>
+                                <option value="วังกะทะ">วังกะทะ</option>     
+                                <option value="โป่งตาลอง">โป่งตาลอง</option>
+                                <option value="คลองม่วง">คลองม่วง</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-wider">ขนาดพื้นที่ (ไร่-งาน-วา)</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <input id="searchRai" type="number" placeholder="ไร่" class="form-input">
+                            <input id="searchNgan" type="number" placeholder="งาน" class="form-input">
+                            <input id="searchWah" type="number" placeholder="วา" class="form-input">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 tracking-wider">งบประมาณ (บาท)</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input id="searchPriceMin" type="number" placeholder="เริ่มต้น" class="form-input">
+                            <input id="searchPriceMax" type="number" placeholder="สูงสุด" class="form-input">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button onclick="clearSearch()" class="flex-1 btn-outline text-[11px] uppercase tracking-wider">ล้างค่า</button>
+                        <button onclick="performSearch(); closeSidebarOnMobile();" class="flex-[2] btn-luxury text-[11px] uppercase shadow-lg shadow-slate-200 tracking-wider">ค้นหาข้อมูล</button>
+                    </div>
+                </div>
+
+                <div class="px-6 py-4 border-y border-slate-50 bg-white flex justify-between items-center sticky top-0 z-10 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">ฐานข้อมูลปัจจุบัน</span>
+                    <span id="resultMeta" class="text-[10px] font-bold text-slate-900 uppercase">0 รายการ</span>
+                </div>
+                
+                <div id="landList" class="p-4 space-y-3 bg-[#fafafa]"></div>
+            </div>
+        </aside>
+
+        <div id="overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/40 z-[55] hidden lg:hidden"></div>
+
+        <main class="flex-1 relative map-container">
+            <!-- Top Right Map Actions -->
+            <div class="absolute top-6 right-6 z-20 flex flex-col gap-4 items-end">
+                <div class="flex items-center gap-3 relative">
+                    <!-- Toast Alert -->
+                    <div id="toast-alert">
+                        <div class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 shrink-0">
+                            <i class="fa-solid fa-headset text-sm"></i>
+                        </div>
+                        <div class="toast-content">
+                            <p class="text-[11px] font-bold text-slate-800 leading-none">เกิดปัณตรงไหนโทรหาเจมนะครับ?</p>
+                            <p class="text-[9px] text-slate-400 mt-1">พร้อมแสตบาย 24 ชม.</p>
+                        </div>
+                        <i onclick="hideToast()" class="fa-solid fa-xmark text-slate-300 hover:text-slate-600 cursor-pointer ml-2 text-xs"></i>
+                    </div>
+
+                    <a href="tel:0980364849" class="map-action-btn text-slate-900 hover:bg-slate-900 hover:text-white transition-all">
+                        <i class="fa-solid fa-phone text-xl"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div id="google-map"></div>
+        </main>
+    </div>
+
+    <!-- Modal Detail -->
+    <div id="modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden z-[100] items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl relative rounded-xl">
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBLO3mHVYeYPv92BomS6KnyeRGHVTCodB4&libraries=places&callback=initMap" async defer></script>
+
+    <script>
+        let map, infoWindow, markers = [];
+        let allLands = [];
+        let isListening = false;
+        let recognition;
+        
+        const subdistricts = ['หนองสาหร่าย', 'หมูสี', 'ปากช่อง', 'กลางดง', 'ขนงพระ', 'พญาเย็น', 'วังไทร', 'โป่งตาลอง', 'หนองน้ำแดง', 'วังกะทะ', 'คลองม่วง'];
+        const subdistrictCoords = {
+            'หนองสาหร่าย': { lat: 14.652, lng: 101.483 },
+            'หมูสี': { lat: 14.532, lng: 101.398 },
+            'ปากช่อง': { lat: 14.710, lng: 101.412 },
+            'กลางดง': { lat: 14.620, lng: 101.250 },
+            'ขนงพระ': { lat: 14.612, lng: 101.415 },
+            'พญาเย็น': { lat: 14.580, lng: 101.180 },
+            'วังไทร': { lat: 14.685, lng: 101.554 },
+            'โป่งตาลอง': { lat: 14.482, lng: 101.512 },
+            'หนองน้ำแดง': { lat: 14.585, lng: 101.350 },
+            'วังกะทะ': { lat: 14.520, lng: 101.600 },
+            'คลองม่วง': { lat: 14.750, lng: 101.620 }
+        };
+
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playNotificationSound() {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
+            oscillator.frequency.exponentialRampToValueAtTime(1320, audioCtx.currentTime + 0.1); 
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.3);
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast-alert');
+            if (toast) {
+                toast.classList.add('show');
+                try { playNotificationSound(); } catch(e) {}
+                setTimeout(hideToast, 10000);
+            }
+        }
+
+        function hideToast() {
+            const toast = document.getElementById('toast-alert');
+            if (toast) toast.classList.remove('show');
+        }
+
+        function activateAI(isActive) {
+            const wrapper = document.getElementById('aiSearchWrapper');
+            const icon = document.getElementById('aiIcon');
+            if(isActive) {
+                wrapper.classList.add('active');
+                icon.classList.replace('text-slate-400', 'text-blue-500');
+            } else if(!isListening) {
+                wrapper.classList.remove('active');
+                icon.classList.replace('text-blue-500', 'text-slate-400');
+            }
+        }
+
+        function formatThaiUnit(totalWah) {
+            const rai = Math.floor(totalWah / 400);
+            const remainingWah = totalWah % 400;
+            const ngan = Math.floor(remainingWah / 100);
+            const wah = remainingWah % 100;
+            let parts = [];
+            if (rai > 0) parts.push(`${rai} ไร่`);
+            if (ngan > 0) parts.push(`${ngan} งาน`);
+            if (wah > 0) parts.push(`${wah} ตร.ว.`);
+            return parts.length > 0 ? parts.join(' ') : '0 ตร.ว.';
+        }
+
+        window.initMap = function() {
+            if (typeof google === 'undefined') return;
+
+            map = new google.maps.Map(document.getElementById("google-map"), {
+                zoom: 11,
+                center: { lat: 14.620, lng: 101.412 },
+                disableDefaultUI: true,
+                zoomControl: true,
+                gestureHandling: 'greedy', 
+                styles: [
+                    { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#c5a059" }] },
+                    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#cbd5e1" }] },
+                    { "featureType": "landscape", "elementType": "geometry", "stylers": [{ "color": "#fdfbf7" }] },
+                    { "featureType": "poi", "stylers": [{ "visibility": "off" }] }
+                ]
+            });
+
+            infoWindow = new google.maps.InfoWindow();
+            generateMasterData(200); 
+            performSearch();
+            initVoiceRecognition();
+            
+            setTimeout(showToast, 3000);
+        };
+
+        function generateMasterData(count) {
+            allLands = [];
+            const statuses = ['Available', 'Available', 'Reserved', 'Hot Deal'];
+            for (let i = 1; i <= count; i++) {
+                const subName = subdistricts[Math.floor(Math.random() * subdistricts.length)];
+                const center = subdistrictCoords[subName];
+                const lat = center.lat + (Math.random() - 0.5) * 0.15;
+                const lng = center.lng + (Math.random() - 0.5) * 0.15;
+                
+                const totalWah = Math.floor(Math.random() * 4000) + 100;
+                const pricePerWah = Math.floor(Math.random() * 25000) + 5000;
+                const price = totalWah * pricePerWah;
+
+                allLands.push({
+                    id: i,
+                    propId: `NK-${String(i).padStart(4, '0')}`,
+                    subdistrict: subName,
+                    price: price,
+                    totalWah: totalWah,
+                    lat: lat,
+                    lng: lng,
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    description: `ที่ดินแปลงสวย ต.${subName} ฮวงจุ้ยดีเยี่ยม วิวภูเขาพาโนรามา เหมาะสำหรับการพัฒนาโครงการพรีเมียมหรือบ้านพักตากอากาศส่วนตัว`,
+                });
+            }
+        }
+
+        function clearSearch() {
+            ['searchPropId', 'searchSubdistrict', 'searchRai', 'searchNgan', 'searchWah', 'searchPriceMin', 'searchPriceMax', 'aiSearchInput'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            performSearch();
+        }
+
+        function performSearch() {
+            const propId = document.getElementById('searchPropId').value.toUpperCase();
+            const subdistrict = document.getElementById('searchSubdistrict').value;
+            const targetTotalWah = (parseInt(document.getElementById('searchRai').value) || 0) * 400 + 
+                                  (parseInt(document.getElementById('searchNgan').value) || 0) * 100 + 
+                                  (parseInt(document.getElementById('searchWah').value) || 0);
+            const minPrice = parseFloat(document.getElementById('searchPriceMin').value) || 0;
+            const maxPrice = parseFloat(document.getElementById('searchPriceMax').value) || Infinity;
+            
+            const filtered = allLands.filter(l => {
+                const matchId = (propId === '' || l.propId.includes(propId));
+                const matchSub = (subdistrict === '' || l.subdistrict === subdistrict);
+                const matchSize = (targetTotalWah === 0 || l.totalWah >= targetTotalWah);
+                const matchPrice = (l.price >= minPrice && l.price <= maxPrice);
+                return matchId && matchSub && matchSize && matchPrice;
+            });
+
+            const meta = document.getElementById('resultMeta');
+            if(meta) meta.innerText = `${filtered.length} รายการ`;
+            renderList(filtered);
+            if(typeof google !== 'undefined') updateMarkers(filtered);
+        }
+
+        function updateMarkers(data) {
+            markers.forEach(m => m.setMap(null));
+            markers = data.map(land => {
+                const marker = new google.maps.Marker({
+                    position: { lat: land.lat, lng: land.lng },
+                    map: map,
+                    icon: { 
+                        path: google.maps.SymbolPath.CIRCLE, 
+                        fillColor: land.status === 'Reserved' ? '#94a3b8' : (land.status === 'Hot Deal' ? '#d96570' : '#0f172a'), 
+                        fillOpacity: 1, 
+                        strokeWeight: 2, 
+                        strokeColor: '#fff', 
+                        scale: 7 
+                    }
+                });
+
+                marker.addListener("click", () => {
+                    const content = `
+                        <div style="font-family: 'Sarabun'; padding: 10px; min-width: 180px;">
+                            <p style="font-size: 9px; color: #c5a059; font-weight: 700; margin: 0;">${land.propId}</p>
+                            <h4 style="margin: 4px 0 8px 0; font-size: 15px; font-weight: 700; color: #0f172a;">ต.${land.subdistrict}</h4>
+                            <div style="font-size: 16px; font-weight: 700; color: #0f172a;">฿${(land.price/1000000).toFixed(2)} ล้าน</div>
+                            <p style="font-size: 11px; color: #64748b; margin: 4px 0 10px 0;">${formatThaiUnit(land.totalWah)}</p>
+                            <button onclick="viewDetails(${land.id})" style="width: 100%; background: #0f172a; color: white; border: none; padding: 8px; font-size: 11px; cursor: pointer; border-radius: 6px; font-weight: 600;">ดูรายละเอียด</button>
+                        </div>`;
+                    infoWindow.setContent(content);
+                    infoWindow.open(map, marker);
+                });
+                return marker;
+            });
+        }
+
+        function renderList(data) {
+            const listEl = document.getElementById('landList');
+            if(!listEl) return;
+            listEl.innerHTML = data.slice(0, 50).map(land => `
+                <div onclick="focusLand(${land.lat}, ${land.lng}, ${land.id})" class="formal-card p-4 cursor-pointer">
+                    <div class="flex justify-between items-start mb-2">
+                        <p class="text-[9px] font-bold text-slate-300 uppercase">${land.propId}</p>
+                        <span class="text-[8px] font-bold px-2 py-0.5 rounded-full ${land.status === 'Hot Deal' ? 'bg-red-50 text-red-500' : (land.status === 'Reserved' ? 'bg-slate-100 text-slate-400' : 'bg-slate-50 text-slate-500')}">${land.status}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">ต.${land.subdistrict}</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">${formatThaiUnit(land.totalWah)}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-base font-bold text-slate-900">฿${(land.price/1000000).toFixed(2)}M</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<div class="text-center py-20 text-slate-300 text-[10px] uppercase tracking-widest">ไม่พบรายการที่ตรงเงื่อนไข</div>';
+        }
+
+        function initVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'th-TH';
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    document.getElementById('aiSearchInput').value = transcript;
+                    processAISearch(transcript);
+                };
+                recognition.onend = () => {
+                    isListening = false;
+                    document.getElementById('aiSearchWrapper').classList.remove('active', 'listening');
+                };
+            }
+        }
+
+        function toggleVoice() {
+            if (!recognition) return;
+            if (isListening) {
+                recognition.stop();
+            } else {
+                initAudio();
+                isListening = true;
+                document.getElementById('aiSearchWrapper').classList.add('active', 'listening');
+                recognition.start();
+            }
+        }
+
+        document.getElementById('aiSearchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') processAISearch(e.target.value);
+        });
+
+        function processAISearch(query) {
+            query = query.toLowerCase();
+            let filtered = [...allLands];
+            
+            subdistricts.forEach(sub => {
+                if (query.includes(sub)) filtered = filtered.filter(l => l.subdistrict === sub);
+            });
+
+            const priceMatch = query.match(/(\d+)\s*(ล้าน|ล|m)/);
+            if (priceMatch) {
+                const targetPrice = parseInt(priceMatch[1]) * 1000000;
+                if (query.includes('ไม่เกิน') || query.includes('ถูกกว่า') || query.includes('ต่ำกว่า')) {
+                    filtered = filtered.filter(l => l.price <= targetPrice);
+                } else if (query.includes('มากกว่า') || query.includes('ขึ้นไป')) {
+                    filtered = filtered.filter(l => l.price >= targetPrice);
+                }
+            }
+
+            document.getElementById('resultMeta').innerText = `${filtered.length} รายการ`;
+            renderList(filtered);
+            if(typeof google !== 'undefined') updateMarkers(filtered);
+            if (window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function focusLand(lat, lng, id) {
+            if(!map) return;
+            map.panTo({ lat, lng });
+            map.setZoom(16);
+            const marker = markers.find(m => m.getPosition().lat().toFixed(4) === lat.toFixed(4));
+            if (marker) google.maps.event.trigger(marker, 'click');
+            if (window.innerWidth < 1024) toggleSidebar();
+        }
+
+        function viewDetails(id) {
+            const land = allLands.find(l => l.id === id);
+            const content = document.getElementById('modalContent');
+            content.innerHTML = `
+                <div class="h-56 bg-slate-900 relative">
+                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800" class="w-full h-full object-cover opacity-80">
+                    <button onclick="closeModal()" class="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white w-10 h-10 flex items-center justify-center rounded-full transition-all"><i class="fa-solid fa-xmark"></i></button>
+                    <div class="absolute bottom-6 left-8">
+                        <span class="text-[10px] font-bold px-3 py-1 bg-white text-slate-900 rounded-full mb-2 inline-block shadow-sm">${land.status}</span>
+                        <h2 class="luxury-text text-white text-xl font-medium">${land.propId}</h2>
+                    </div>
+                </div>
+                <div class="p-8">
+                    <div class="flex justify-between items-end mb-8 border-b pb-8">
+                        <div>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-1 tracking-wider">ราคาประเมินทรัพย์</p>
+                            <p class="text-3xl font-bold text-slate-900">฿${land.price.toLocaleString()}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-1 tracking-wider">เฉลี่ยต่อไร่</p>
+                            <p class="text-base font-semibold text-luxury-gold">฿${(land.price/(land.totalWah/400)).toLocaleString(undefined, {maximumFractionDigits:0})}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                            <p class="text-[9px] text-slate-400 uppercase font-bold mb-1 tracking-wider">ทำเลที่ตั้ง</p>
+                            <p class="text-sm font-bold text-slate-800">ต.${land.subdistrict}, ปากช่อง</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                            <p class="text-[9px] text-slate-400 uppercase font-bold mb-1 tracking-wider">พื้นที่ครอบครอง</p>
+                            <p class="text-sm font-bold text-slate-800">${formatThaiUnit(land.totalWah)}</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-500 leading-relaxed mb-8 italic border-l-4 border-luxury-gold/30 pl-4">${land.description}</p>
+                    <div class="flex gap-4">
+                        <a href="https://www.google.com/maps/search/?api=1&query=${land.lat},${land.lng}" target="_blank" class="flex-1 py-4 bg-slate-900 text-white text-[10px] font-bold uppercase text-center rounded-lg tracking-widest shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all">ดูสถานที่จริง</a>
+                        <a href="tel:0980364849" class="w-14 h-14 bg-luxury-gold text-white flex items-center justify-center rounded-lg shadow-lg shadow-yellow-100 hover:scale-105 transition-transform">
+                            <i class="fa-solid fa-phone text-lg"></i>
+                        </a>
+                    </div>
+                </div>`;
+            document.getElementById('modal').classList.replace('hidden', 'flex');
+        }
+
+        function closeModal() { document.getElementById('modal').classList.replace('flex', 'hidden'); }
+        function toggleSidebar() { 
+            document.getElementById('sidebar').classList.toggle('sidebar-collapsed'); 
+            document.getElementById('overlay').classList.toggle('hidden'); 
+        }
+        function closeSidebarOnMobile() { if(window.innerWidth < 1024) toggleSidebar(); }
+    </script>
+</body>
+</html>
